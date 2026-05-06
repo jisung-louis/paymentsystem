@@ -1,14 +1,14 @@
 package com.jisung.paymentsystem.discount.domain;
 
-import com.jisung.paymentsystem.member.domain.MemberGrade;
+import com.jisung.paymentsystem.payment.domain.PaymentMethod;
 import org.springframework.stereotype.Component;
 
 @Component
-public class VipDiscountPolicy implements DiscountPolicy {
-    // VIP 정책 : 1000원 고정 할인
-    public static final String POLICY_NAME = "VIP_FIXED_AMOUNT_DISCOUNT";
-    public static final int PRIORITY = 100;
-    private static final Long DISCOUNT_AMOUNT = 1_000L;
+public class PointPaymentDiscountPolicy implements DiscountPolicy {
+    // POINT결제 정책 : 5% 할인
+    public static final String POLICY_NAME = "POINT_PAYMENT_RATE_DISCOUNT";
+    public static final int PRIORITY = 200;
+    private static final Long DISCOUNT_RATE = 5L;
 
     @Override
     public String policyName() {
@@ -22,14 +22,15 @@ public class VipDiscountPolicy implements DiscountPolicy {
 
     @Override
     public boolean isApplicable(DiscountContext context) {
-        return context.memberGrade() == MemberGrade.VIP;
+        return context.paymentMethod() == PaymentMethod.POINT;
     }
 
     @Override
     public DiscountResult apply(DiscountContext context, Long currentAmount) {
-        Long discountAmount = Math.min(DISCOUNT_AMOUNT, currentAmount);
-        return DiscountResult.fixed(
+        Long discountAmount = currentAmount * DISCOUNT_RATE / 100;
+        return DiscountResult.rate(
                 policyName(),
+                DISCOUNT_RATE,
                 currentAmount,
                 discountAmount
         );

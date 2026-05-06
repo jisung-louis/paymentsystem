@@ -3,7 +3,8 @@ package com.jisung.paymentsystem.payment.application;
 import com.jisung.paymentsystem.common.exception.BusinessException;
 import com.jisung.paymentsystem.common.exception.ErrorCode;
 import com.jisung.paymentsystem.discount.application.DiscountCalculator;
-import com.jisung.paymentsystem.discount.domain.DiscountResult;
+import com.jisung.paymentsystem.discount.domain.DiscountCalculationResult;
+import com.jisung.paymentsystem.discount.domain.DiscountContext;
 import com.jisung.paymentsystem.member.domain.MemberGrade;
 import com.jisung.paymentsystem.order.domain.Order;
 import com.jisung.paymentsystem.order.infra.OrderRepository;
@@ -29,13 +30,17 @@ public class PaymentService {
         MemberGrade memberGrade = order.getOrderer().getMemberGrade(); // 주문자등급
         Long originalAmount = order.getOriginalAmount(); // 상품원가
 
-        DiscountResult discountResult = discountCalculator.calculate(memberGrade, originalAmount); // 할인결과 객체
-        Long finalAmount = originalAmount - discountResult.discountAmount(); // 할인 적용한 "최종금액"
+        DiscountContext discountContext = new DiscountContext(
+                memberGrade,
+                command.paymentMethod(),
+                originalAmount
+        );
+        DiscountCalculationResult discountCalculationResult = discountCalculator.calculate(discountContext);
 
         Payment payment = Payment.create(
                 order,
                 command.paymentMethod(),
-                finalAmount
+                discountCalculationResult
         );
 
         return paymentRepository.save(payment);
