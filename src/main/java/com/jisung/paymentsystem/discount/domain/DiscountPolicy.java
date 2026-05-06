@@ -8,7 +8,7 @@ public interface DiscountPolicy {
     // 우선순위
     int priority();
 
-    // 해당 할인정책 적용가능여부 확인 (멤버등급 대조)
+    // 해당 할인정책 적용가능여부 확인
     boolean isApplicable(DiscountContext context);
 
     // 해당 할인정책 적용 함수 (각 할인 정책대로 구현)
